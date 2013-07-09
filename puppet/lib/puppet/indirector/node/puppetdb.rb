@@ -5,6 +5,8 @@ require 'puppet/util/puppetdb'
 class Puppet::Node::Puppetdb < Puppet::Indirector::REST
   include Puppet::Util::Puppetdb
 
+  use_srv_service(:db)
+
   def find(request)
   end
 

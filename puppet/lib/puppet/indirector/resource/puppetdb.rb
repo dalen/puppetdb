@@ -4,6 +4,8 @@ require 'puppet/util/puppetdb'
 class Puppet::Resource::Puppetdb < Puppet::Indirector::REST
   include Puppet::Util::Puppetdb
 
+  use_srv_service(:db)
+
   def search(request)
     type   = request.key
     host   = request.options[:host]

@@ -6,6 +6,8 @@ class Puppet::Resource::Catalog::Puppetdb < Puppet::Indirector::REST
   include Puppet::Util::Puppetdb
   include Puppet::Util::Puppetdb::CommandNames
 
+  use_srv_service(:db)
+
   def save(request)
     catalog = munge_catalog(request.instance)
 

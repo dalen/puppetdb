@@ -6,6 +6,8 @@ class Puppet::Node::Facts::Puppetdb < Puppet::Indirector::REST
   include Puppet::Util::Puppetdb
   include Puppet::Util::Puppetdb::CommandNames
 
+  use_srv_service(:db)
+
   def save(request)
     facts = request.instance.dup
     facts.values = facts.values.dup
