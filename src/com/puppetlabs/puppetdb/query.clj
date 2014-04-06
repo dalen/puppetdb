@@ -235,6 +235,17 @@
    "containment_path"       ["resource_events"]
    "containing_class"       ["resource_events"]})
 
+(def report-columns
+  ["hash"
+   "certname"
+   "puppet_version"
+   "report_format"
+   "configuration_version"
+   "start_time"
+   "end_time"
+   "receive_time"
+   "transaction_uuid"])
+
 (defn column-map->sql
   "Helper function that converts one of our column maps to a SQL string suitable
   for use in a SELECT"
@@ -269,6 +280,10 @@
 (defmethod queryable-fields :event
   [_ _]
   (keyset event-columns))
+
+(defmethod queryable-fields :report
+  [_ _]
+  (keyset report-columns))
 
 (def subquery->type
   {"select-resources" :resource

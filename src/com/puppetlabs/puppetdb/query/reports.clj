@@ -4,7 +4,16 @@
   (:require [puppetlabs.kitchensink.core :as kitchensink]
             [clojure.string :as string])
   (:use [com.puppetlabs.jdbc :only [query-to-vec underscores->dashes valid-jdbc-query?]]
-        [com.puppetlabs.puppetdb.query :only [execute-query compile-term]]
+        [com.puppetlabs.puppetdb.query :only [report-columns
+                                              execute-query
+                                              compile-term
+                                              compile-extract
+                                              compile-in
+                                              execute-query
+                                              resource-query->sql
+                                              fact-query->sql
+                                              resource-operators
+                                              fact-operators]]
         [com.puppetlabs.puppetdb.query.events :only [events-for-report-hash]]
         [com.puppetlabs.puppetdb.query.paging :only [validate-order-by!]]))
 
@@ -31,7 +40,12 @@
     (throw (IllegalArgumentException.
             (format "'%s' is not a valid query term" path)))))
 
-(def report-term-map {"=" compile-equals-term})
+(def report-term-map
+  (let [version :v3] {"=" compile-equals-term
+                      "extract" (partial compile-extract version report-term-map)
+                      "in" (partial compile-in :event version report-term-map)
+                      "select-resources" (partial resource-query->sql (resource-operators version))
+                      "select-facts" (partial fact-query->sql (fact-operators version))}))
 
 (defn report-query->sql
   "Compile a report query into an SQL expression."
@@ -40,17 +54,6 @@
    :post [(valid-jdbc-query? %)]}
   (let [{:keys [where params]} (compile-term report-term-map query)]
     (apply vector (format " WHERE %s" where) params)))
-
-(def report-columns
-  ["hash"
-   "certname"
-   "puppet_version"
-   "report_format"
-   "configuration_version"
-   "start_time"
-   "end_time"
-   "receive_time"
-   "transaction_uuid"])
 
 (defn query-reports
   "Take a query and its parameters, and return a vector of matching reports."
